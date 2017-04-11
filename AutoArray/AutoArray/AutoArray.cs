@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AutoArray
 {
-
+    
     public class AutoArray
     {
         public const int DEFAULT_SIZE = 10;
@@ -14,8 +14,8 @@ namespace AutoArray
 
         private object[] data;
         private int topIndex;
-        public IList<EventHandler> ElementAddedListeners { get; set; } = new List<EventHandler>();
-        public IList<EventHandler> SizeChangedListeners { get; set; } = new List<EventHandler>();
+        public IList<EventHandler<ElementAddedEventArgs>> ElementAddedListeners { get; set; } = new List<EventHandler<ElementAddedEventArgs>>();
+        public IList<EventHandler<SizeChangedEventArgs>> SizeChangedListeners { get; set; } = new List<EventHandler<SizeChangedEventArgs>>();
 
         public AutoArray()
             : this(DEFAULT_SIZE)
@@ -81,7 +81,7 @@ namespace AutoArray
         private void NotifySizeChange(int newSize)
         {
             SizeChangedEventArgs args = new SizeChangedEventArgs(newSize);
-            foreach (EventHandler listener in SizeChangedListeners)
+            foreach (EventHandler<SizeChangedEventArgs> listener in SizeChangedListeners)
             {
                 listener?.Invoke(this, args);
             }
@@ -90,7 +90,7 @@ namespace AutoArray
         private void NotifyElementAdded(object element)
         {
             ElementAddedEventArgs args = new ElementAddedEventArgs(element);
-            foreach(EventHandler listener in ElementAddedListeners)
+            foreach(EventHandler<ElementAddedEventArgs> listener in ElementAddedListeners)
             {
                 listener?.Invoke(this, args);
             }
