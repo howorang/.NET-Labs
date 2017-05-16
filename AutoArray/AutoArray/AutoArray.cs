@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AutoArray
@@ -11,6 +13,7 @@ namespace AutoArray
     {
         public const int DEFAULT_SIZE = 10;
         private const int INITIAL_INDEX = -1;
+        private readonly object lockObject = new object();
 
         private object[] data;
         private int topIndex;
@@ -32,7 +35,6 @@ namespace AutoArray
         {
             get
             {
-                Console.WriteLine("Top index is {0} " , topIndex);
                 if (index <= topIndex)
                 {
                     return data[index];
@@ -42,24 +44,63 @@ namespace AutoArray
 
             set
             {
-                ResizeIfNeeded(index);
-                if (index > topIndex)
+                Monitor.Enter(lockObject);
+                try
                 {
-                    topIndex = index;
-                    NotifyElementAdded(value);
-                    NotifySizeChange(topIndex + 1);
+                    ResizeIfNeeded(index);
+                    if (index > topIndex)
+                    {
+                        topIndex = index;
+                        NotifyElementAdded(value);
+                        NotifySizeChange(topIndex + 1);
+                    }
+                    data[index] = value;
                 }
-                data[index] = value;
+                finally
+                {
+                    Monitor.Exit(lockObject);
+                }
             }
         }
 
         public void Add(object item)
         {
-            topIndex++;
-            ResizeIfNeeded(topIndex);
-            data[topIndex] = item;
-            NotifyElementAdded(item);
-            NotifySizeChange(topIndex + 1);
+            Monitor.Enter(lockObject);
+            try
+            {
+                Thread.Sleep(50);
+                topIndex++;
+                ResizeIfNeeded(topIndex);
+                data[topIndex] = item;
+                NotifyElementAdded(item);
+                NotifySizeChange(topIndex + 1);
+            }
+            finally
+            {
+                Monitor.Exit(lockObject);
+            }
+        }
+
+        public bool TryAdd(object item)
+        {
+            if (Monitor.TryEnter(lockObject))
+            {
+                try
+                {
+                    topIndex++;
+                    ResizeIfNeeded(topIndex);
+                    data[topIndex] = item;
+                    NotifyElementAdded(item);
+                    NotifySizeChange(topIndex + 1);
+                    return true;
+                }
+                finally
+                {
+                    Monitor.Exit(lockObject);
+                }
+            }
+
+            return false;
         }
 
         private void ResizeIfNeeded(int index)
@@ -74,7 +115,6 @@ namespace AutoArray
                     newSize = 2 * data.Length;
 
                 Array.Resize(ref data, newSize);
-                Console.WriteLine("Data storage resized to {0}", newSize);
             }
         }
 
@@ -95,6 +135,16 @@ namespace AutoArray
                 listener?.Invoke(this, args);
             }
         }
+
+        public IList<String> ToLines()
+        {
+            List<String> lines = new List<string>();
+            for (int i = 0; i < topIndex; i++)
+            {
+                lines.Add(data[i].ToString());
+            }
+            return lines;
+        }
     }
 
     public class SizeChangedEventArgs : EventArgs
@@ -114,4 +164,5 @@ namespace AutoArray
             this.element = element;
         }
     }
+
 }
