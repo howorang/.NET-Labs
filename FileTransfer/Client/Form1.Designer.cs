@@ -40,6 +40,7 @@
             this.sendButton = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.chosenFileLabel = new System.Windows.Forms.Label();
+            this.textBox1 = new System.Windows.Forms.TextBox();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -70,6 +71,7 @@
             this.ipTextBox.Name = "ipTextBox";
             this.ipTextBox.Size = new System.Drawing.Size(100, 20);
             this.ipTextBox.TabIndex = 1;
+            this.ipTextBox.Text = "127.0.0.1";
             // 
             // ipLabel
             // 
@@ -95,6 +97,7 @@
             this.portTextBox.Name = "portTextBox";
             this.portTextBox.Size = new System.Drawing.Size(100, 20);
             this.portTextBox.TabIndex = 4;
+            this.portTextBox.Text = "8001";
             // 
             // connectButton
             // 
@@ -145,11 +148,19 @@
             this.chosenFileLabel.TabIndex = 9;
             this.chosenFileLabel.Text = "brak";
             // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(276, 134);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(100, 20);
+            this.textBox1.TabIndex = 10;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(488, 228);
+            this.Controls.Add(this.textBox1);
             this.Controls.Add(this.chosenFileLabel);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.sendButton);
@@ -183,6 +194,7 @@
         private System.Windows.Forms.Button sendButton;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label chosenFileLabel;
+        private System.Windows.Forms.TextBox textBox1;
     }
 }
 

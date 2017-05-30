@@ -55,9 +55,7 @@ namespace Client
         private void sendButton_Click(object sender, EventArgs e)
         {
             string fullPath = openFileDialog1.FileName;
-            Thread sendThread = new Thread(p => sendFile(fullPath));
-            sendThread.Start();
-            sendThread.Join();
+            Task.Run(() => sendFile(fullPath));
         }
 
         private void sendFile(string fullPath)
@@ -70,7 +68,15 @@ namespace Client
 
             Stream tcpStream = tcpclnt.GetStream();
             IFormatter formatter = new BinaryFormatter();
-            formatter.Serialize(tcpStream, newFileTransfer);
+            try
+            {
+                formatter.Serialize(tcpStream, newFileTransfer);
+
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
             tcpclnt.Close();
             isConnected.Text = "ROZLACZONO";
         }
