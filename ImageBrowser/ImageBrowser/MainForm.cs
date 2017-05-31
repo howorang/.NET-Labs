@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,7 +33,12 @@ namespace ImageBrowser
         private void openFileDialog_FileOk(object sender, CancelEventArgs e)
         {
             string fullPath = openFileDialog.FileName;
-            currentImage = (Bitmap) Image.FromFile(fullPath);
+            using (var fs = new FileStream(fullPath, FileMode.Open, FileAccess.Read))
+            {
+                Image tmpImage = Image.FromStream(fs);
+                currentImage = new Bitmap(tmpImage);
+                tmpImage.Dispose();
+            }
             pictureBox.Image = currentImage;
             currentFileLabel.Text = fullPath;
 
@@ -113,8 +120,25 @@ namespace ImageBrowser
         {
             if (drawingMode)
             {
-                pictureBox.CreateGraphics().DrawEllipse(currentPen,e.Location.X, e.Location.Y, 1,1);
+                using (Graphics g = Graphics.FromImage(currentImage))
+                {
+                    g.DrawEllipse(currentPen, e.Location.X, e.Location.Y, 1, 1);
+                    g.Save();
+                    pictureBox.Image = currentImage;
+                }  
             }
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Image imageToSave = pictureBox.Image;
+            Bitmap bitmapToSave = new Bitmap(imageToSave);
+
+            Stream savingStream = File.Open(openFileDialog.FileName, FileMode.Create);
+
+            bitmapToSave.Save(savingStream, ImageFormat.Jpeg);
+            bitmapToSave.Dispose();
+            savingStream.Close();
         }
     }
 }
