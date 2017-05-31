@@ -14,6 +14,9 @@ namespace ImageBrowser
     public partial class MainForm : Form
     {
         private Bitmap currentImage;
+        private Pen currentPen = new Pen(Color.Black, (float)BrushThickness.Medium);
+        private Point lastPenPosition;
+        private bool drawingMode = false;
 
         public MainForm()
         {
@@ -39,7 +42,6 @@ namespace ImageBrowser
 
         private void pictureBox_Click(object sender, EventArgs e)
         {
-         
         }
 
         private async void blurToolStripMenuItem_Click(object sender, EventArgs e)
@@ -70,6 +72,49 @@ namespace ImageBrowser
         {
             Bitmap newImageBitmap = filter.Apply(currentImage);
             return await Task.Run(() => filter.Apply(currentImage));
+        }
+
+        private void toolStripButton1_Click(object sender, EventArgs e)
+        {
+            colorDialog.ShowDialog();
+            colorButton.BackColor = colorDialog.Color;
+            currentPen.Color = colorDialog.Color;
+        }
+
+        private void toolStripComboBox1_DropDownClosed(object sender, EventArgs e)
+        {
+            string selectedItem = (string) toolStripComboBox1.SelectedItem;
+
+            switch (selectedItem)
+            {
+                case "Slim":
+                    currentPen.Width = (float) BrushThickness.Slim;
+                    break;
+                case "Medium":
+                    currentPen.Width = (float) BrushThickness.Medium;
+                    break;
+                case "Thick":
+                    currentPen.Width = (float) BrushThickness.Thick;
+                    break;
+            }
+        }
+
+        private void pictureBox_MouseDown(object sender, MouseEventArgs e)
+        {
+            drawingMode = true;
+        }
+
+        private void pictureBox_MouseUp(object sender, MouseEventArgs e)
+        {
+            drawingMode = false;
+        }
+
+        private void pictureBox_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (drawingMode)
+            {
+                pictureBox.CreateGraphics().DrawEllipse(currentPen,e.Location.X, e.Location.Y, 1,1);
+            }
         }
     }
 }
